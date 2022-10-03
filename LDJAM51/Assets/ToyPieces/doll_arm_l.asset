@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 3
   sprite: {fileID: 21300000, guid: 9cc513508b8cfee4b88727f3637f4e09, type: 3}
   tags:
-  - dressing
-  - cute
+  - clothing
+  - cuteness

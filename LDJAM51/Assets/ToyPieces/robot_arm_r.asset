@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 2
   sprite: {fileID: 21300000, guid: 5a11ed4521671b94d9ec1c76deb33d43, type: 3}
   tags:
-  - machine
+  - machines
   - science

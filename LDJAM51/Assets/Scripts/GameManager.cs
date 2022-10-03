@@ -2,6 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
+
+public struct SavedToy
+{
+    public ToyPieceData body, head, rightArm, leftArm, legs;
+    public Request request;
+}
 
 public class GameManager : MonoBehaviour
 {
@@ -23,10 +30,14 @@ public class GameManager : MonoBehaviour
     public GameState state = GameState.WAITING;
 
     // Triggers
+    bool ready = false; // -> piece Generation
     bool pieceGenCompleted = false; // -> Building, start timer
     bool timeOut = false; // -> Cleaning / Game Over
     bool cleaningCompleted = false; // -> Piece Generation
     bool gameOver = false; // -> Stop game, show scores
+
+    Request request;
+    List<SavedToy> savedToys;
 
     [Header("Game Logic Configuration")]
     [SerializeField] int piecesPerSpawner = 10;
@@ -38,6 +49,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject bottomBound;
     [SerializeField] float cleaningTime = 3;
     [SerializeField] ToyBuilder toyBuilder;
+
+    [Header("Callbacks")]
+    public UnityEvent onGenerationStart;
 
     #region Singleton declaration
     public static GameManager Instance { get; private set; }
@@ -160,6 +174,11 @@ public class GameManager : MonoBehaviour
 
     #region Logic
 
+    public void SetReady(bool value)
+    {
+        ready = value;
+    }
+
     private void Update()
     {
         HandleState();
@@ -173,13 +192,23 @@ public class GameManager : MonoBehaviour
     // ====== WAITING ========
     void HandleWaiting()
     {
-        // Start piece generation
-        StartCoroutine(PieceGenerationRoutine());
-        state = GameState.PIECE_GENERATION;
+        if (ready)
+        {
+            // Generate new Request
+            request = RequestManager.Instance.GetRandomRequest();
+
+            // Start piece generation
+            StartCoroutine(PieceGenerationRoutine());
+            state = GameState.PIECE_GENERATION;
+            onGenerationStart.Invoke();
+
+            //ready = false;
+        }
     }
 
     IEnumerator PieceGenerationRoutine()
     {
+
         for (int i = 0; i < piecesPerSpawner; i++)
         {
             foreach (var spawner in spawners)
@@ -214,12 +243,28 @@ public class GameManager : MonoBehaviour
     {
         if (timeOut)
         {
-            state = GameState.CLEANING;
             timeOut = false;
-            Debug.Log("Building finished!!!");
+            Debug.Log("Building time finished!!!");
 
-            // Start cleaning
-            StartCoroutine(CleaningRoutine());
+            // Check toy is complete
+            if (!toyBuilder.IsCompleted())
+            {
+                state = GameState.GAME_OVER;
+                gameOver = true;
+            }
+            /*else
+            {*/
+                // Save toy
+                /*SavedToy toy = toyBuilder.GetToy();
+                toy.request = request;
+                savedToys.Add(toy);*/
+
+                // Start cleaning
+                state = GameState.CLEANING;
+                StartCoroutine(CleaningRoutine());
+            //}
+
+            
         }
     }
 

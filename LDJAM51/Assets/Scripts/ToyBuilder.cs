@@ -100,4 +100,31 @@ public class ToyBuilder : MonoBehaviour
         }
         legsData = null;
     }
+
+    public SavedToy GetToy()
+    {
+        SavedToy toy = new SavedToy();
+
+        toy.head = headData;
+        toy.body = bodyData;
+        toy.rightArm = rightArmData;
+        toy.leftArm = leftArmData;
+        toy.legs = legsData;
+
+        return toy;
+    }
+
+    public bool IsCompleted()
+    {
+        return headData && bodyData && rightArmData && leftArmData && legsData;
+    }
+
+    public void SetToy(SavedToy toy)
+    {
+        AttachPiece(toy.head, headAnchor);
+        AttachPiece(toy.body, bodyAnchor);
+        AttachPiece(toy.rightArm, rightArmAnchor);
+        AttachPiece(toy.leftArm, leftArmAnchor);
+        AttachPiece(toy.legs, legsAnchor);
+    }
 }

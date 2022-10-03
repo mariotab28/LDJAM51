@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 4
   sprite: {fileID: 21300000, guid: 00e14e768b595a94abf7d1c0002a280f, type: 3}
   tags:
-  - cute
-  - animal
+  - cuteness
+  - animals
