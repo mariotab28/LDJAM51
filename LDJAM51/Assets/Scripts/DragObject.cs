@@ -12,6 +12,8 @@ public class DragObject : MonoBehaviour
 
     public void OnMouseDown()
     {
+        if (!GameManager.Instance.CompareGameState(GameManager.GameState.BUILDING)) return;
+
         zCoord = transform.position.z;
         prevDragPosition = GetMouseWorldPos();
         offsetPosition = transform.position - prevDragPosition;
@@ -29,6 +31,8 @@ public class DragObject : MonoBehaviour
 
     private void OnMouseDrag()
     {
+        if (!GameManager.Instance.CompareGameState(GameManager.GameState.BUILDING)) return;
+
         Vector3 movePos = GetMouseWorldPos() + offsetPosition;
         transform.position = new Vector3(movePos.x, movePos.y, 4);
     }

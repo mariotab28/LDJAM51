@@ -5,14 +5,39 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField]List<ToyPieceData> toyPieces;
+    [SerializeField] List<ToyPieceData> toyPieces;
     [SerializeField] Transform spawnContainer;
     [Header("Piece Prefabs")]
     [SerializeField] ToyPieceConfiguration bodyPF, headPF, rightArmPF, leftArmPF, legsPF;
 
-    // Piece Database
+    // Piece Database -----------------
+    [Header("Piece Database Creation")]
     [SerializeField] SerializablePiece auxPiece;
     [SerializeField] List<SerializablePiece> pieceDatabase = new List<SerializablePiece>();
+
+    // Logic -----------------
+    public enum GameState
+    {
+        WAITING, PIECE_GENERATION, BUILDING, CLEANING, GAME_OVER
+    }
+    public GameState state = GameState.WAITING;
+
+    // Triggers
+    bool pieceGenCompleted = false; // -> Building, start timer
+    bool timeOut = false; // -> Cleaning / Game Over
+    bool cleaningCompleted = false; // -> Piece Generation
+    bool gameOver = false; // -> Stop game, show scores
+
+    [Header("Game Logic Configuration")]
+    [SerializeField] int piecesPerSpawner = 10;
+    [SerializeField] [Range(0, 1)] float timeBetweenPieceSpawn = 0;
+    [SerializeField] List<Spawner> spawners;
+    [Space]
+    [SerializeField] int buildingSeconds = 10;
+    [Space]
+    [SerializeField] GameObject bottomBound;
+    [SerializeField] float cleaningTime = 3;
+    [SerializeField] ToyBuilder toyBuilder;
 
     #region Singleton declaration
     public static GameManager Instance { get; private set; }
@@ -27,6 +52,7 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
+    #region Piece Spawning
     public ToyPieceData GetRandomPiece()
     {
         return toyPieces[Random.Range(0, toyPieces.Count)];
@@ -73,6 +99,7 @@ public class GameManager : MonoBehaviour
 
         return toyPiece;
     }
+    #endregion
 
     #region Loading Database
 
@@ -82,6 +109,7 @@ public class GameManager : MonoBehaviour
 
         // Clear previous data
         pieceDatabase.Clear();
+        toyPieces.Clear();
 
         // Read CSV file
         List<Dictionary<string, object>> data = CSVReader.Read("PieceDatabase");
@@ -117,14 +145,156 @@ public class GameManager : MonoBehaviour
         // Overwrite data with data from the serialized card
         data.type = (ToyPieceData.PieceType)piece.type;
         data.sprite = Resources.Load<Sprite>("Piece Sprites/" + piece.spriteName);
-        data.tags = piece.tags.Split('0');
+        data.tags = piece.tags.Split('_');
 
         // Increment cardIdCount
         //cardIdCount++;
 
         // Create new Asset file with this object
-        string path = "Assets/ToyPieces/" + data.name + ".asset";
+        string path = "Assets/ToyPieces/" + data.sprite.name + ".asset";
         AssetDatabase.CreateAsset(data, path);
+
+        toyPieces.Add(data);
     }
+    #endregion
+
+    #region Logic
+
+    private void Update()
+    {
+        HandleState();
+    }
+
+    public bool CompareGameState(GameState state)
+    {
+        return this.state == state;
+    }
+
+    // ====== WAITING ========
+    void HandleWaiting()
+    {
+        // Start piece generation
+        StartCoroutine(PieceGenerationRoutine());
+        state = GameState.PIECE_GENERATION;
+    }
+
+    IEnumerator PieceGenerationRoutine()
+    {
+        for (int i = 0; i < piecesPerSpawner; i++)
+        {
+            foreach (var spawner in spawners)
+                spawner.Spawn();
+
+            yield return new WaitForSeconds(timeBetweenPieceSpawn);
+        }
+
+        pieceGenCompleted = true;
+    }
+
+    // =======================
+
+    // ====== GENERATION ========
+    void HandlePieceGeneration()
+    {
+        if (pieceGenCompleted)
+        {
+            Debug.Log("GENERATION FINISHED");
+            state = GameState.BUILDING;
+            pieceGenCompleted = false;
+
+            // Start building timer
+            StartCoroutine(BuildingTimer());
+        }
+    }
+
+    // =======================
+
+    // ====== BUILDING ========
+    void HandleBuilding()
+    {
+        if (timeOut)
+        {
+            state = GameState.CLEANING;
+            timeOut = false;
+            Debug.Log("Building finished!!!");
+
+            // Start cleaning
+            StartCoroutine(CleaningRoutine());
+        }
+    }
+
+    IEnumerator BuildingTimer()
+    {
+        int timer = buildingSeconds;
+
+        while (timer > 0)
+        {
+            Debug.Log("BUILDING TIME: " + timer);
+            timer--;
+            yield return new WaitForSeconds(1);
+        }
+        timeOut = true;
+    }
+
+    // =======================
+
+    // ====== CLEANING ========
+    void HandleCleaning()
+    {
+        if (cleaningCompleted)
+        {
+            state = GameState.WAITING;
+            cleaningCompleted = false;
+        }
+    }
+
+    IEnumerator CleaningRoutine() 
+    {
+        bottomBound.SetActive(false);
+
+        yield return new WaitForSeconds(cleaningTime);
+
+        bottomBound.SetActive(true);
+        cleaningCompleted = true;
+
+        toyBuilder.ResetToy();
+    }
+
+    // =======================
+
+    // ====== GAME OVER ========
+    void HandleGameOver()
+    {
+
+    }
+
+    // =======================
+
+    void HandleState()
+    {
+        switch (state)
+        {
+            case GameState.WAITING:
+                HandleWaiting();
+                break;
+            case GameState.PIECE_GENERATION:
+                HandlePieceGeneration();
+                break;
+            case GameState.BUILDING:
+                HandleBuilding();
+                break;
+            case GameState.CLEANING:
+                HandleCleaning();
+                break;
+            case GameState.GAME_OVER:
+                HandleGameOver();
+                break;
+            default:
+                break;
+        }
+    }
+
+
+
     #endregion
 }

@@ -7,6 +7,7 @@ public class Spawner : MonoBehaviour
     [SerializeField] Transform spawnParent;
     private int cont = 0;
 
+    /*
     void Update()
     {
         if (Input.GetKey(KeyCode.Space))
@@ -14,5 +15,11 @@ public class Spawner : MonoBehaviour
             cont++;
             GameManager.Instance.SpawnRandom(spawnParent);
         }
+    }
+    */
+
+    public void Spawn()
+    {
+        GameManager.Instance.SpawnRandom(spawnParent);
     }
 }

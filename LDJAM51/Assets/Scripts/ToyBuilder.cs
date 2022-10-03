@@ -62,4 +62,42 @@ public class ToyBuilder : MonoBehaviour
         Destroy(anchor.GetChild(0).gameObject);
         GameManager.Instance.SpawnAtPosition(data, anchor.position);
     }
+
+    public void ResetToy()
+    {
+        if (headAnchor.childCount > 0)
+        {
+            GameObject head = headAnchor.GetChild(0).gameObject;
+            Destroy(head);
+        }
+        headData = null;
+
+        if (bodyAnchor.childCount > 0)
+        {
+            GameObject body = bodyAnchor.GetChild(0).gameObject;
+            Destroy(bodyAnchor.GetChild(0).gameObject);
+        }
+        bodyData = null;
+
+        if (rightArmAnchor.childCount > 0)
+        {
+            GameObject rightArm = rightArmAnchor.GetChild(0).gameObject;
+            Destroy(rightArmAnchor.GetChild(0).gameObject);
+        }
+        rightArmData = null;
+
+        if (leftArmAnchor.childCount > 0)
+        {
+            GameObject leftArm = leftArmAnchor.GetChild(0).gameObject;
+            Destroy(leftArmAnchor.GetChild(0).gameObject);
+        }
+        leftArmData = null;
+
+        if (legsAnchor.childCount > 0)
+        {
+            GameObject legs = legsAnchor.GetChild(0).gameObject;
+            Destroy(legsAnchor.GetChild(0).gameObject);
+        }
+        legsData = null;
+    }
 }
