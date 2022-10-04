@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public struct SavedToy
 {
@@ -13,6 +14,8 @@ public struct SavedToy
 public class GameManager : MonoBehaviour
 {
     [SerializeField] List<ToyPieceData> toyPieces;
+    [SerializeField] List<LevelInfo> levels;
+    [SerializeField] List<ToySet> sets;
     [SerializeField] Transform spawnContainer;
     [Header("Piece Prefabs")]
     [SerializeField] ToyPieceConfiguration bodyPF, headPF, rightArmPF, leftArmPF, legsPF;
@@ -28,6 +31,8 @@ public class GameManager : MonoBehaviour
         WAITING, PIECE_GENERATION, BUILDING, CLEANING, GAME_OVER
     }
     public GameState state = GameState.WAITING;
+    public int level = 0;
+    int toyCount = 0;
 
     // Triggers
     bool ready = false; // -> piece Generation
@@ -37,13 +42,15 @@ public class GameManager : MonoBehaviour
     bool gameOver = false; // -> Stop game, show scores
 
     Request request;
-    List<SavedToy> savedToys;
+    List<SavedToy> savedToys = new List<SavedToy>();
+    List<ToyPieceData> pieceGenList = new List<ToyPieceData>();
 
     [Header("Game Logic Configuration")]
-    [SerializeField] int piecesPerSpawner = 10;
+    [SerializeField] int maxPieces = 10;
     [SerializeField] [Range(0, 1)] float timeBetweenPieceSpawn = 0;
     [SerializeField] List<Spawner> spawners;
     [Space]
+    [SerializeField] RequestPanelConfiguration requestPanel;
     [SerializeField] int buildingSeconds = 10;
     [Space]
     [SerializeField] GameObject bottomBound;
@@ -52,6 +59,21 @@ public class GameManager : MonoBehaviour
 
     [Header("Callbacks")]
     public UnityEvent onGenerationStart;
+    public UnityEvent onBuildStart;
+    public UnityEvent onBuildFinished;
+    public UnityEvent onBuildSuccess;
+    public UnityEvent onGameOver;
+
+    [Header("Score Menu Objects")]
+    [SerializeField] private GameObject scoreMenuPanels;
+    [SerializeField] private TMPro.TMP_Text kidNumText;
+    [SerializeField] private TMPro.TMP_Text kidNameText;
+    [SerializeField] private TMPro.TMP_Text likesText;
+    [SerializeField] private TMPro.TMP_Text dislikesText;
+    [SerializeField] private TMPro.TMP_Text satisfiedCountText;
+    [SerializeField] private Animator satisfiedAnim;
+    [SerializeField] private Animator unhappyAnim;
+    [SerializeField] private GameObject retryButton;
 
     #region Singleton declaration
     public static GameManager Instance { get; private set; }
@@ -179,6 +201,16 @@ public class GameManager : MonoBehaviour
         ready = value;
     }
 
+    public Request GetRequest()
+    {
+        return request;
+    }
+
+    public int GetToyCount()
+    {
+        return toyCount;
+    }
+
     private void Update()
     {
         HandleState();
@@ -189,13 +221,37 @@ public class GameManager : MonoBehaviour
         return this.state == state;
     }
 
+    public void ResetScene()
+    {
+        SceneManager.LoadScene(0);
+    }
+
     // ====== WAITING ========
     void HandleWaiting()
     {
         if (ready)
         {
-            // Generate new Request
-            request = RequestManager.Instance.GetRandomRequest();
+            // Load level info
+            if (level < levels.Count)
+            {
+                LevelInfo info = levels[level];
+                level++;
+
+                request = info.request;
+
+                // Build gen list
+                BuildPieceList(info.includedSets, info.maxPieces);
+            }
+            else
+            {
+                // Generate new Request
+                request = RequestManager.Instance.GetRandomRequest();
+
+                // Build gen list
+                BuildRandomPieceList(sets[request.mandatorySet], maxPieces);
+            }
+
+            
 
             // Start piece generation
             StartCoroutine(PieceGenerationRoutine());
@@ -208,7 +264,21 @@ public class GameManager : MonoBehaviour
 
     IEnumerator PieceGenerationRoutine()
     {
+        requestPanel.gameObject.SetActive(true);
+        requestPanel.Configure();
+        yield return new WaitForSeconds(1);
 
+        int i = 0;
+        while (i < pieceGenList.Count)
+        {
+            spawners[0].Spawn(pieceGenList[i]);
+            i++;
+            if (i < pieceGenList.Count)
+            { spawners[1].Spawn(pieceGenList[i]); i++; }
+
+            yield return new WaitForSeconds(timeBetweenPieceSpawn);
+        }
+        /*
         for (int i = 0; i < piecesPerSpawner; i++)
         {
             foreach (var spawner in spawners)
@@ -216,7 +286,8 @@ public class GameManager : MonoBehaviour
 
             yield return new WaitForSeconds(timeBetweenPieceSpawn);
         }
-
+        */
+        requestPanel.gameObject.SetActive(false);
         pieceGenCompleted = true;
     }
 
@@ -230,6 +301,7 @@ public class GameManager : MonoBehaviour
             Debug.Log("GENERATION FINISHED");
             state = GameState.BUILDING;
             pieceGenCompleted = false;
+            onBuildStart.Invoke();
 
             // Start building timer
             StartCoroutine(BuildingTimer());
@@ -245,24 +317,31 @@ public class GameManager : MonoBehaviour
         {
             timeOut = false;
             Debug.Log("Building time finished!!!");
+            onBuildFinished.Invoke();
 
             // Check toy is complete
             if (!toyBuilder.IsCompleted())
             {
                 state = GameState.GAME_OVER;
                 gameOver = true;
-            }
-            /*else
-            {*/
-                // Save toy
-                /*SavedToy toy = toyBuilder.GetToy();
-                toy.request = request;
-                savedToys.Add(toy);*/
+                onGameOver.Invoke();
+                ResetGame();
 
+                StartCoroutine(ScoreScreenRoutine());
+            }
+            else
+            {
+                // Save toy
+                SavedToy toy = toyBuilder.GetToy();
+                toy.request = request;
+                savedToys.Add(toy);
+                toyCount++;
+
+                onBuildSuccess.Invoke();
                 // Start cleaning
                 state = GameState.CLEANING;
                 StartCoroutine(CleaningRoutine());
-            //}
+            }
 
             
         }
@@ -313,6 +392,122 @@ public class GameManager : MonoBehaviour
 
     }
 
+    void ResetGame()
+    {
+        level = 0;
+        toyCount = 0;
+    }
+
+    IEnumerator ShowSavedPieceCoroutine(ToyPieceData piece)
+    {
+        float pTime = 0.15f;
+        toyBuilder.AttachPiece(piece);
+        yield return new WaitForSeconds(pTime);
+    }
+
+    private void ApplyTagsToScore(string[] tags, Request r, ref int score)
+    {
+        string likes = r.likes;
+        string dislikes = r.dislikes;
+        foreach (var tag in tags)
+            if (tag.ToLower() == likes.ToLower()) score++;
+            else if (tag.ToLower() == dislikes.ToLower()) score--;
+    }
+
+    private int CalculateScore(Request r, SavedToy toy)
+    {
+        int score = 0;
+
+        ApplyTagsToScore(toy.head.tags, r, ref score);
+        ApplyTagsToScore(toy.body.tags, r, ref score);
+        ApplyTagsToScore(toy.rightArm.tags, r, ref score);
+        ApplyTagsToScore(toy.leftArm.tags, r, ref score);
+        ApplyTagsToScore(toy.legs.tags, r, ref score);
+
+        return score;
+    }
+
+    IEnumerator ScoreScreenRoutine()
+    {
+        yield return new WaitForSeconds(2); // Wait for fired animation
+
+        // Clean
+        bottomBound.SetActive(false);
+        toyBuilder.ResetToy();
+
+        yield return new WaitForSeconds(cleaningTime);
+
+        bottomBound.SetActive(true);
+        cleaningCompleted = true;
+
+        // Show Saved Toys Routine:
+        // Activate panels
+        scoreMenuPanels.SetActive(true);
+        int toyCont = 1;
+        int satisfied = 0;
+
+        foreach (var toy in savedToys)
+        {
+            // ------------------- Request
+            kidNumText.text = "kid num. " + toyCont;
+            // Show piece -> wait
+            yield return new WaitForSeconds(0.15f);
+            yield return ShowSavedPieceCoroutine(toy.body);
+            yield return ShowSavedPieceCoroutine(toy.head);
+            yield return ShowSavedPieceCoroutine(toy.leftArm);
+            yield return ShowSavedPieceCoroutine(toy.rightArm);
+            yield return ShowSavedPieceCoroutine(toy.legs);
+
+            // Show Request info
+            Request r = toy.request;
+            kidNameText.text = "kid's name: " + r.name;
+            likesText.text = "likes: " + r.likes;
+            dislikesText.text = "dislikes: " + r.dislikes;
+
+            // Calculate satisfaction
+            int score = CalculateScore(r, toy);
+
+            // Show satisfaction graphic
+            if (score > 2)
+            {
+                satisfied++;
+                // show satisfied
+                satisfiedAnim.gameObject.SetActive(true);
+                satisfiedAnim.Play("IndicatorStamp");
+                
+                // Update satisfied count
+                satisfiedCountText.text = "satisfied kids: " + satisfied;
+            }
+            else
+            {
+                // show unsatisfied
+                unhappyAnim.gameObject.SetActive(true);
+                unhappyAnim.Play("IndicatorStamp");
+            }
+
+
+            // Wait->Clean request
+            yield return new WaitForSeconds(3);
+            kidNumText.text = "kid num. ";
+            kidNameText.text = "kid's name: ";
+            likesText.text = "likes: ";
+            dislikesText.text = "dislikes: ";
+            toyBuilder.ResetToy();
+            satisfiedAnim.gameObject.SetActive(false);
+            unhappyAnim.gameObject.SetActive(false);
+
+            // ------------------- Request
+            toyCont++;
+        }
+
+
+        // Satisfied count bounce anim
+
+        // Show retry button
+        retryButton.SetActive(true);
+
+    }
+
     // =======================
 
     void HandleState()
@@ -339,7 +534,48 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void BuildPieceList(List<ToySet> sets, int maxPieces)
+    {
+        // clean gen list
+        pieceGenList.Clear();
 
+        foreach (var set in sets)
+            foreach (var piece in set.toyPieces)
+                pieceGenList.Add(piece);
+
+        if (pieceGenList.Count < maxPieces)
+            for (int i = pieceGenList.Count; i < maxPieces; i++)
+                pieceGenList.Add(GetRandomPiece());
+
+        // Shuffle list
+        Shuffle(ref pieceGenList);
+    }
+
+    private void BuildRandomPieceList(ToySet mandatorySet, int maxPieces)
+    {
+        // clean gen list
+        pieceGenList.Clear();
+
+        foreach (var piece in mandatorySet.toyPieces)
+            pieceGenList.Add(piece);
+
+        for (int i = pieceGenList.Count; i < maxPieces; i++)
+            pieceGenList.Add(GetRandomPiece());
+    }
+
+
+    public static void Shuffle<T>(ref List<T> list)
+    {
+        int n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = Random.Range(0, n + 1);
+            T value = list[k];
+            list[k] = list[n];
+            list[n] = value;
+        }
+    }
 
     #endregion
 }

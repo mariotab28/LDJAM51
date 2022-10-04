@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c405372576b311409415c2e6e3fd4a3, type: 3}
+  m_Name: 3_mermaid
+  m_EditorClassIdentifier: 
+  toyPieces:
+  - {fileID: 11400000, guid: b4535af010fabcd4ea41d9911418edcd, type: 2}
+  - {fileID: 11400000, guid: b4bd3ae0c7918af409fecc1fe4d62d17, type: 2}
+  - {fileID: 11400000, guid: ce8b3c8381029ec4f80444025fb37f2f, type: 2}
+  - {fileID: 11400000, guid: 87fcf863f5bd83c4aa0fb337f93b2f94, type: 2}
+  - {fileID: 11400000, guid: d976cfd8cfb6ad1469b38178d909782a, type: 2}

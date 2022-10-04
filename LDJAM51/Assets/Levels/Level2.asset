@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5c068fb97d7a41469e804a8177037ab, type: 3}
+  m_Name: Level2
+  m_EditorClassIdentifier: 
+  request:
+    name: Billy
+    likes: violence
+    dislikes: clothing
+    mandatorySet: 0
+  includedSets:
+  - {fileID: 11400000, guid: 4b74aee302f50fb4796c39cfd600d337, type: 2}
+  - {fileID: 11400000, guid: 6ddfaaaacecfd4d42b5dd5122b6e70c9, type: 2}
+  maxPieces: 10

@@ -9,11 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 182950d803de33042a2484cd84913586, type: 3}
-  m_Name: soldier_legs
+  m_Script: {fileID: 11500000, guid: f5c068fb97d7a41469e804a8177037ab, type: 3}
+  m_Name: Level0
   m_EditorClassIdentifier: 
-  type: 4
-  sprite: {fileID: 21300000, guid: 74fe824549665b947b53cc5b367fc4b9, type: 3}
-  tags:
-  - adventures
-  - violence
+  request:
+    name: Lucas
+    likes: animals
+    dislikes: machines
+    mandatorySet: 0
+  includedSets:
+  - {fileID: 11400000, guid: fbec9a9fce131434a8c53c50fe3bad3a, type: 2}
+  maxPieces: 0

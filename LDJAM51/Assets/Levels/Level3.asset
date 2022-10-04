@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5c068fb97d7a41469e804a8177037ab, type: 3}
+  m_Name: Level3
+  m_EditorClassIdentifier: 
+  request:
+    name: Edith
+    likes: science
+    dislikes: cuteness
+    mandatorySet: 0
+  includedSets:
+  - {fileID: 11400000, guid: 33857d84c1812ba4f8a8a46c268e0c2a, type: 2}
+  - {fileID: 11400000, guid: fd82d0d5e0a5bd347aec3849b4e5fc10, type: 2}
+  maxPieces: 10

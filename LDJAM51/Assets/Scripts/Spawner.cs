@@ -22,4 +22,9 @@ public class Spawner : MonoBehaviour
     {
         GameManager.Instance.SpawnRandom(spawnParent);
     }
+
+    public void Spawn(ToyPieceData piece)
+    {
+        GameManager.Instance.Spawn(piece, spawnParent);
+    }
 }

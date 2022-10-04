@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 2
   sprite: {fileID: 21300000, guid: 003d46c8276c31245b3bf544dc745837, type: 3}
   tags:
-  - adventure
+  - adventures
   - violence

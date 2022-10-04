@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 182950d803de33042a2484cd84913586, type: 3}
-  m_Name: soldier_legs
+  m_Name: rabbit_arm_l
   m_EditorClassIdentifier: 
-  type: 4
-  sprite: {fileID: 21300000, guid: 74fe824549665b947b53cc5b367fc4b9, type: 3}
+  type: 3
+  sprite: {fileID: 21300000, guid: 36dc67869a47105499ca2efa72329ac0, type: 3}
   tags:
-  - adventures
-  - violence
+  - cuteness
+  - animals

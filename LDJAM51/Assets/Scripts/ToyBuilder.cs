@@ -50,6 +50,30 @@ public class ToyBuilder : MonoBehaviour
         anchorData = droppedData;
     }
 
+    public void AttachPiece(ToyPieceData data)
+    {
+        switch (data.type)
+        {
+            case ToyPieceData.PieceType.BODY:
+                AttachPiece(data, bodyAnchor);
+                break;
+            case ToyPieceData.PieceType.HEAD:
+                AttachPiece(data, headAnchor);
+                break;
+            case ToyPieceData.PieceType.R_ARM:
+                AttachPiece(data, rightArmAnchor);
+                break;
+            case ToyPieceData.PieceType.L_ARM:
+                AttachPiece(data, leftArmAnchor);
+                break;
+            case ToyPieceData.PieceType.LEGS:
+                AttachPiece(data, legsAnchor);
+                break;
+            default:
+                break;
+        }
+    }
+
     public void AttachPiece(ToyPieceData data, Transform anchor)
     {
         GameObject spriteGO = Instantiate(spritePF, anchor);
