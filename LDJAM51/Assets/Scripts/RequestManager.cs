@@ -41,9 +41,8 @@ public class RequestManager : MonoBehaviour
         List<string> aux = new List<string>(categories);
         aux.Remove(r.likes);
         r.dislikes = aux[Random.Range(0, aux.Count)];
-        int index = categories.IndexOf(r.likes);
-        r.mandatorySet = Random.Range(0, numOfSets);
-
+        //int index = categories.IndexOf(r.likes);
+        r.mandatorySet = GameManager.Instance.GetSetIndexFromCategory(r.likes); //Random.Range(0, numOfSets);
         return r;
     }
 }

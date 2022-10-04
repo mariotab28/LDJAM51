@@ -211,6 +211,23 @@ public class GameManager : MonoBehaviour
         return toyCount;
     }
 
+    public int GetSetIndexFromCategory(string category)
+    {
+        int i = 0;
+        bool found = false;
+
+        while (i < sets.Count && !found)
+        {
+            foreach (var tag in sets[i].toyPieces[0].tags)
+                if (tag == category)
+                    found = true;
+
+            if (!found) i++;
+        }
+
+        return i;
+    }
+
     private void Update()
     {
         HandleState();
@@ -341,6 +358,12 @@ public class GameManager : MonoBehaviour
                 // Start cleaning
                 state = GameState.CLEANING;
                 StartCoroutine(CleaningRoutine());
+
+                // Increase difficulty
+                if (level >= levels.Count)
+                {
+                    maxPieces++;
+                }
             }
 
             
