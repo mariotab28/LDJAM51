@@ -48,6 +48,7 @@ public class GameManager : MonoBehaviour
     [Header("Game Logic Configuration")]
     [SerializeField] int maxPieces = 10;
     [SerializeField] [Range(0, 1)] float timeBetweenPieceSpawn = 0;
+    [SerializeField] [Range(0, 10)] float totalSpawnTime = 2;
     [SerializeField] List<Spawner> spawners;
     [Space]
     [SerializeField] RequestPanelConfiguration requestPanel;
@@ -74,6 +75,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Animator satisfiedAnim;
     [SerializeField] private Animator unhappyAnim;
     [SerializeField] private GameObject retryButton;
+
+    [Header("Sounds")]
+    [SerializeField] AudioClip[] tickTack;
+    [SerializeField] AudioClip stampSound;
 
     #region Singleton declaration
     public static GameManager Instance { get; private set; }
@@ -176,6 +181,7 @@ public class GameManager : MonoBehaviour
 
     private void AddScriptableObject(SerializablePiece piece)
     {
+#if UNITY_EDITOR
         ToyPieceData data = ScriptableObject.CreateInstance<ToyPieceData>();
 
         // Overwrite data with data from the serialized card
@@ -191,6 +197,7 @@ public class GameManager : MonoBehaviour
         AssetDatabase.CreateAsset(data, path);
 
         toyPieces.Add(data);
+#endif
     }
     #endregion
 
@@ -230,6 +237,11 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+            return;
+        }
         HandleState();
     }
 
@@ -241,6 +253,11 @@ public class GameManager : MonoBehaviour
     public void ResetScene()
     {
         SceneManager.LoadScene(0);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 
     // ====== WAITING ========
@@ -285,6 +302,7 @@ public class GameManager : MonoBehaviour
         requestPanel.Configure();
         yield return new WaitForSeconds(1);
 
+        timeBetweenPieceSpawn = totalSpawnTime / pieceGenList.Count;
         int i = 0;
         while (i < pieceGenList.Count)
         {
@@ -377,6 +395,8 @@ public class GameManager : MonoBehaviour
         while (timer > 0)
         {
             Debug.Log("BUILDING TIME: " + timer);
+            int tickClipIndex = timer % 2 == 0 ? 0 : 1;
+            SoundManager.Instance.Play(tickTack[tickClipIndex]);
             timer--;
             yield return new WaitForSeconds(1);
         }
@@ -507,6 +527,7 @@ public class GameManager : MonoBehaviour
                 unhappyAnim.gameObject.SetActive(true);
                 unhappyAnim.Play("IndicatorStamp");
             }
+            SoundManager.Instance.Play(stampSound);
 
 
             // Wait->Clean request

@@ -8,6 +8,8 @@ public class ToyBuilder : MonoBehaviour
     Transform headAnchor, bodyAnchor, rightArmAnchor, leftArmAnchor, legsAnchor;
     ToyPieceData headData, bodyData, rightArmData, leftArmData, legsData;
 
+    [SerializeField] AudioClip attachClip;
+
     private void Awake()
     {
         bodyAnchor = transform.GetChild(0);
@@ -79,6 +81,7 @@ public class ToyBuilder : MonoBehaviour
         GameObject spriteGO = Instantiate(spritePF, anchor);
         SpriteRenderer renderer = spriteGO.GetComponent<SpriteRenderer>();
         renderer.sprite = data.sprite;
+        SoundManager.Instance.Play(attachClip);
     }
 
     public void DettachPiece(ToyPieceData data, Transform anchor)

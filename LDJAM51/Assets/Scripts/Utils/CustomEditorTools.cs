@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+#if UNITY_EDITOR
 class CustomEditorTools : EditorWindow
 {
     [MenuItem("Tools/PiecesDatabaseTool")]
@@ -20,3 +21,4 @@ class CustomEditorTools : EditorWindow
         }
     }
 }
+#endif
