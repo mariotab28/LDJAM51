@@ -2032,7 +2032,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: dea8064a0c051b64fa0300295a672240, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 842a43631e3ba9d4b985243e5965c32e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3268,7 +3268,7 @@ MonoBehaviour:
   tickTack:
   - {fileID: 8300000, guid: fcd85cb4a519a044d925bac382290f6f, type: 3}
   - {fileID: 8300000, guid: e0d1557c120a197479f5025bf2f91601, type: 3}
-  stampSound: {fileID: 0}
+  stampSound: {fileID: 8300000, guid: 276189d6fbb13684a953d9a117b5363e, type: 3}
 --- !u!4 &596434791
 Transform:
   m_ObjectHideFlags: 0
@@ -8368,7 +8368,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3a19b0dc6c533d041bd1e50cfe58de02, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a626500cd517c0c4fafa5f707008a4dc, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

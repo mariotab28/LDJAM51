@@ -394,7 +394,7 @@ public class GameManager : MonoBehaviour
 
         while (timer > 0)
         {
-            Debug.Log("BUILDING TIME: " + timer);
+            //Debug.Log("BUILDING TIME: " + timer);
             int tickClipIndex = timer % 2 == 0 ? 0 : 1;
             SoundManager.Instance.Play(tickTack[tickClipIndex]);
             timer--;
