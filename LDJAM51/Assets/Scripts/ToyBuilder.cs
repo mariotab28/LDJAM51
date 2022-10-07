@@ -9,6 +9,7 @@ public class ToyBuilder : MonoBehaviour
     ToyPieceData headData, bodyData, rightArmData, leftArmData, legsData;
 
     [SerializeField] AudioClip attachClip;
+    [SerializeField] ParticleSystem particles;
 
     private void Awake()
     {
@@ -25,24 +26,41 @@ public class ToyBuilder : MonoBehaviour
         {
             case ToyPieceData.PieceType.BODY:
                 HandleAnchorState(dropped.data, ref bodyData, bodyAnchor);
+                AttachParticles(bodyAnchor);
                 break;
             case ToyPieceData.PieceType.HEAD:
                 HandleAnchorState(dropped.data, ref headData, headAnchor);
+                AttachParticles(headAnchor);
                 break;
             case ToyPieceData.PieceType.R_ARM:
                 HandleAnchorState(dropped.data, ref rightArmData, rightArmAnchor);
+                AttachParticles(rightArmAnchor);
                 break;
             case ToyPieceData.PieceType.L_ARM:
                 HandleAnchorState(dropped.data, ref leftArmData, leftArmAnchor);
+                AttachParticles(leftArmAnchor);
                 break;
             case ToyPieceData.PieceType.LEGS:
                 HandleAnchorState(dropped.data, ref legsData, legsAnchor);
+                AttachParticles(legsAnchor);
                 break;
             default:
                 break;
         }
 
         Destroy(dropped.gameObject);
+    }
+
+    void AttachParticles(Transform anchor)
+    {
+        ParticleSystem ps = Instantiate(particles, anchor);
+        StartCoroutine(DestroyParticles(ps));
+    }
+
+    IEnumerator DestroyParticles(ParticleSystem ps)
+    {
+        yield return new WaitForSeconds(1);
+        Destroy(ps.gameObject);
     }
 
     private void HandleAnchorState(ToyPieceData droppedData, ref ToyPieceData anchorData, Transform anchor)

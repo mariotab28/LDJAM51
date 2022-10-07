@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   request:
     name: Lucas
-    likes: animals
-    dislikes: machines
+    likes: machines
+    dislikes: animals
     mandatorySet: 0
   includedSets:
-  - {fileID: 11400000, guid: fbec9a9fce131434a8c53c50fe3bad3a, type: 2}
+  - {fileID: 11400000, guid: 8109ca4754759fb458020d5d5e9f38df, type: 2}
   maxPieces: 0

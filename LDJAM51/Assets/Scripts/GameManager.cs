@@ -64,6 +64,8 @@ public class GameManager : MonoBehaviour
     public UnityEvent onBuildFinished;
     public UnityEvent onBuildSuccess;
     public UnityEvent onGameOver;
+    public UnityEvent onEndGameTransition;
+    public UnityEvent onEndGameTransitionEnd;
 
     [Header("Score Menu Objects")]
     [SerializeField] private GameObject scoreMenuPanels;
@@ -473,12 +475,15 @@ public class GameManager : MonoBehaviour
     IEnumerator ScoreScreenRoutine()
     {
         yield return new WaitForSeconds(2); // Wait for fired animation
+        onEndGameTransition.Invoke();
 
         // Clean
         bottomBound.SetActive(false);
         toyBuilder.ResetToy();
 
         yield return new WaitForSeconds(cleaningTime);
+        onEndGameTransitionEnd.Invoke();
+        SoundManager.Instance.PlayMenuMusic();
 
         bottomBound.SetActive(true);
         cleaningCompleted = true;

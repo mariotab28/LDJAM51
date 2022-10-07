@@ -15,7 +15,7 @@ MonoBehaviour:
   request:
     name: Edith
     likes: science
-    dislikes: cuteness
+    dislikes: creepy
     mandatorySet: 0
   includedSets:
   - {fileID: 11400000, guid: 33857d84c1812ba4f8a8a46c268e0c2a, type: 2}
